@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Office Coffee Shop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☕</text></svg>">
+    <meta name="theme-color" content="#6f4e37">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f3e9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        header {
+            background: linear-gradient(to right, #6f4e37, #8b6138);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        .app-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .app-subtitle {
+            font-size: 1rem;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-top: 1.5rem;
+            border-bottom: 2px solid #6f4e37;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 0.8rem 1.5rem;
+            background: #e6d2bb;
+            border: none;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            margin-right: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #5a3e2b;
+            transition: background-color 0.3s;
+        }
+        
+        .tab.active {
+            background: #6f4e37;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 1.5rem 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .menu-category {
+            margin: 1.5rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #6f4e37;
+            color: #6f4e37;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .menu-category i {
+            font-size: 1.2rem;
+        }
+        
+        .menu-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .menu-item {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+        
+        .item-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: linear-gradient(45deg, #e6d2bb, #d4b896);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7a6150;
+            font-size: 2.5rem;
+        }
+        
+        .item-info {
+            padding: 1.2rem;
+        }
+        
+        .item-name {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .item-price {
+            color: #6f4e37;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .add-to-cart {
+            background-color: #6f4e37;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .add-to-cart:hover {
+            background-color: #5a3e2b;
+        }
+        
+        .cart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.8rem;
+            margin-top: 2.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .cart-title {
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #f0e6d9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #6f4e37;
+        }
+        
+        .cart-items {
+            margin-bottom: 1.2rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .quantity-btn {
+            background: #f0e6d9;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .remove-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .cart-total {
+            font-weight: bold;
+            text-align: right;
+            margin: 1.5rem 0;
+            font-size: 1.3rem;
+            color: #6f4e37;
+        }
+        
+        .order-form {
+            margin-top: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #5a3e2b;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.9rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            background-color: #f9f9f9;
+        }
+        
+        .place-order {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .place-order:hover {
+            background-color: #3d8b40;
+        }
+        
+        .empty-cart {
+            text-align: center;
+            padding: 1.5rem;
+            color: #888;
+            font-style: italic;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4caf50;
+            color: white;
+            padding: 1.2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            max-width: 350px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .orders-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 1.8rem;
+            margin-top: 2.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .orders-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .orders-filter {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 0.6rem 1rem;
+            border: 1px solid #6f4e37;
+            border-radius: 6px;
+            background: white;
+            color: #6f4e37;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background: #6f4e37;
+            color: white;
+        }
+        
+        .orders-list {
+            margin-top: 1rem;
+        }
+        
+        .order-item {
+            background: #f9f5f0;
+            border-radius: 8px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #6f4e37;
+            transition: transform 0.2s;
+        }
+        
+        .order-item.waiting {
+            border-left-color: #2196F3;
+        }
+        
+        .order-item.delivered {
+            border-left-color: #4caf50;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            font-weight: bold;
+            color: #6f4e37;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .order-items {
+            margin-bottom: 0.8rem;
+        }
+        
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-style: italic;
+            color: #777;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .order-status {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            font-style: normal;
+        }
+        
+        .status-waiting {
+            background: #e3f2fd;
+            color: #2196F3;
+        }
+        
+        .status-delivered {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .mark-delivered {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .mark-waiting {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .delete-order {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        footer {
+            background: #6f4e37;
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .menu-items {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 0.8rem;
+            }
+            
+            .orders-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .order-header, .order-footer {
+                flex-direction: column;
+            }
+            
+            .order-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .tab {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="app-title"><i class="fas fa-coffee"></i> Office Coffee Shop</h1>
+        <p class="app-subtitle">Order your favorite drinks and snacks - delivered to your office</p>
+    </header>
+    
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" data-tab="menu">Menu & Order</button>
+            <button class="tab" data-tab="orders">Order Management</button>
+        </div>
+        
+        <div class="tab-content active" id="menu-content">
+            <h2 class="menu-category"><i class="fas fa-mug-hot"></i> Coffee & Drinks</h2>
+            <div class="menu-items">
+                <div class="menu-item">
+                    <div class="item-image"><i class="fas fa-coffee"></i></div>
+                    <div class="item-info">
+                        <div class="item-name">Espresso</div>
+                        <div class="item-price">$2.50</div>
+                        <button class="add-to-cart" data-name="Espresso" data-price="2.50"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-image"><i class="fas fa-coffee"></i></div>
+                    <div class="item-info">
+                        <div class="item-name">Cappuccino</div>
+                        <div class="item-price">$3.50</div>
+                        <button class="add-to-cart" data-name="Cappuccino" data-price="3.50"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-image"><i class="fas fa-coffee"></i></div>
+                    <div class="item-info">
+                        <div class="item-name">Latte</div>
+                        <div class="item-price">$4.00</div>
+                        <button class="add-to-cart" data-name="Latte" data-price="4.00"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-image"><i class="fas fa-coffee"></i></div>
+                    <div class="item-info">
+                        <div class="item-name">Mocha</div>
+                        <div class="item-price">$4.25</div>
+                        <button class="add-to-cart" data-name="Mocha" data-price="4.25"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 class="menu-category"><i class="fas fa-cookie"></i> Snacks & Pastries</h2>
+            <div class="menu-items">
+                <div class="menu-item">
+                    <div class="item-image"><i class="fas fa-bread-slice"></i></div>
+                    <div class="item-info">
+                        <div class="item-name">Croissant</div>
+                        <div class="item-price">$2.75</div>
+                        <button class="add-to-cart" data-name="Croissant" data-price="2.75"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-image"><i class="fas fa-cupcake"></i></div>
+                    <div class="item-info">
+                        <div class="item-name">Blueberry Muffin</div>
+                        <div class="item-price">$3.00</div>
+                        <button class="add-to-cart" data-name="Blueberry Muffin" data-price="3.00"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-image"><i class="fas fa-cheese"></i></div>
+                    <div class="item-info">
+                        <div class="item-name">Turkey Sandwich</div>
+                        <div class="item-price">$5.50</div>
+                        <button class="add-to-cart" data-name="Turkey Sandwich" data-price="5.50"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <div class="item-image"><i class="fas fa-cookie"></i></div>
+                    <div class="item-info">
+                        <div class="item-name">Chocolate Cookie</div>
+                        <div class="item-price">$1.75</div>
+                        <button class="add-to-cart" data-name="Chocolate Cookie" data-price="1.75"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cart-container">
+                <h2 class="cart-title"><i class="fas fa-shopping-cart"></i> Your Order</h2>
+                <div class="cart-items">
+                    <div class="empty-cart">Your cart is empty. Add some delicious items!</div>
+                </div>
+                <div class="cart-total">Total: $0.00</div>
+                
+                <div class="order-form">
+                    <div class="form-group">
+                        <label for="floor"><i class="fas fa-building"></i> Office Floor</label>
+                        <input type="number" id="floor" min="1" placeholder="Enter floor number" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="room"><i class="fas fa-door-open"></i> Room Number</label>
+                        <input type="text" id="room" placeholder="Enter room number" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone"><i class="fas fa-phone"></i> Phone Number</label>
+                        <input type="tel" id="phone" placeholder="Enter your phone number" required>
+                    </div>
+                    
+                    <button class="place-order"><i class="fas fa-paper-plane"></i> Place Order</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="orders-content">
+            <div class="orders-panel">
+                <div class="orders-header">
+                    <h2 class="cart-title"><i class="fas fa-clipboard-list"></i> Order Management</h2>
+                    <div class="orders-filter">
+                        <button class="filter-btn active" data-filter="all">All Orders</button>
+                        <button class="filter-btn" data-filter="waiting">Waiting</button>
+                        <button class="filter-btn" data-filter="delivered">Delivered</button>
+                    </div>
+                </div>
+                <div class="orders-list" id="orders-list">
+                    <div class="empty-cart">No orders yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i> Order placed successfully!
+    </div>
+
+    <footer>
+        <p>Office Coffee Shop &copy; 2023 | We deliver to your office</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cart = [];
+            const orders = [];
+            const cartItems = document.querySelector('.cart-items');
+            const cartTotal = document.querySelector('.cart-total');
+            const emptyCart = document.querySelector('.empty-cart');
+            const placeOrderBtn = document.querySelector('.place-order');
+            const notification = document.getElementById('notification');
+            const ordersList = document.getElementById('orders-list');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            
+            // Initialize with some sample orders for demonstration
+            initializeSampleOrders();
+            
+            // Tab switching functionality
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show corresponding content
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}-content`) {
+                            content.classList.add('active');
+                        }
+                    });
+                    
+                    // If switching to orders tab, update orders display
+                    if (tabId === 'orders') {
+                        updateOrdersDisplay();
+                    }
+                });
+            });
+            
+            // Filter orders
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    updateOrdersDisplay(btn.getAttribute('data-filter'));
+                });
+            });
+            
+            // Add to cart functionality
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', function() {
+                    const name = this.getAttribute('data-name');
+                    const price = parseFloat(this.getAttribute('data-price'));
+                    
+                    // Check if item already exists in cart
+                    const existingItem = cart.find(item => item.name === name);
+                    
+                    if (existingItem) {
+                        existingItem.quantity += 1;
+                    } else {
+                        cart.push({
+                            name: name,
+                            price: price,
+                            quantity: 1
+                        });
+                    }
+                    
+                    updateCart();
+                });
+            });
+            
+            // Update cart display
+            function updateCart() {
+                if (cart.length === 0) {
+                    emptyCart.style.display = 'block';
+                    cartItems.innerHTML = '';
+                } else {
+                    emptyCart.style.display = 'none';
+                    
+                    let itemsHTML = '';
+                    let total = 0;
+                    
+                    cart.forEach((item, index) => {
+                        const itemTotal = item.price * item.quantity;
+                        total += itemTotal;
+                        
+                        itemsHTML += `
+                            <div class="cart-item">
+                                <div>${item.name}</div>
+                                <div class="item-controls">
+                                    <button class="quantity-btn minus" data-index="${index}">-</button>
+                                    <span>${item.quantity}</span>
+                                    <button class="quantity-btn plus" data-index="${index}">+</button>
+                                    <button class="remove-btn" data-index="${index}">Remove</button>
+                                </div>
+                                <div>$${itemTotal.toFixed(2)}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    cartItems.innerHTML = itemsHTML;
+                    cartTotal.textContent = `Total: $${total.toFixed(2)}`;
+                    
+                    // Add event listeners to quantity buttons
+                    document.querySelectorAll('.quantity-btn.minus').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = parseInt(this.getAttribute('data-index'));
+                            if (cart[index].quantity > 1) {
+                                cart[index].quantity -= 1;
+                            } else {
+                                cart.splice(index, 1);
+                            }
+                            updateCart();
+                        });
+                    });
+                    
+                    document.querySelectorAll('.quantity-btn.plus').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = parseInt(this.getAttribute('data-index'));
+                            cart[index].quantity += 1;
+                            updateCart();
+                        });
+                    });
+                    
+                    document.querySelectorAll('.remove-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = parseInt(this.getAttribute('data-index'));
+                            cart.splice(index, 1);
+                            updateCart();
+                        });
+                    });
+                }
+            }
+            
+            // Place order functionality
+            placeOrderBtn.addEventListener('click', function() {
+                const floor = document.getElementById('floor').value;
+                const room = document.getElementById('room').value;
+                const phone = document.getElementById('phone').value;
+                
+                if (cart.length === 0) {
+                    alert('Your cart is empty. Please add items before placing an order.');
+                    return;
+                }
+                
+                if (!floor || !room || !phone) {
+                    alert('Please fill in all delivery information.');
+                    return;
+                }
+                
+                // Create order object
+                const order = {
+                    id: Date.now(), // Unique ID based on timestamp
+                    items: JSON.parse(JSON.stringify(cart)), // Deep copy of cart
+                    total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                    floor: floor,
+                    room: room,
+                    phone: phone,
+                    time: new Date().toLocaleTimeString(),
+                    date: new Date().toLocaleDateString(),
+                    status: 'waiting' // Default status
+                };
+                
+                // Add to orders list
+                orders.unshift(order);
+                
+                // Update orders display
+                updateOrdersDisplay();
+                
+                // Show notification
+                notification.innerHTML = `<i class="fas fa-check-circle"></i> Order received! Delivering to Floor ${floor}, Room ${room}`;
+                notification.style.display = 'block';
+                notification.style.backgroundColor = '#4caf50';
+                
+                // Hide notification after 5 seconds
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 5000);
+                
+                // Clear cart and form
+                cart.length = 0;
+                updateCart();
+                document.getElementById('floor').value = '';
+                document.getElementById('room').value = '';
+                document.getElementById('phone').value = '';
+            });
+            
+            // Update orders display with filtering
+            function updateOrdersDisplay(filter = 'all') {
+                if (orders.length === 0) {
+                    ordersList.innerHTML = '<div class="empty-cart">No orders yet</div>';
+                    return;
+                }
+                
+                let filteredOrders = orders;
+                
+                // Apply filter if needed
+                if (filter !== 'all') {
+                    filteredOrders = orders.filter(order => order.status === filter);
+                }
+                
+                if (filteredOrders.length === 0) {
+                    ordersList.innerHTML = `<div class="empty-cart">No ${filter} orders</div>`;
+                    return;
+                }
+                
+                let ordersHTML = '';
+                
+                filteredOrders.forEach(order => {
+                    let itemsHTML = '';
+                    order.items.forEach(item => {
+                        itemsHTML += `<div>${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}</div>`;
+                    });
+                    
+                    ordersHTML += `
+                        <div class="order-item ${order.status}">
+                            <div class="order-header">
+                                <div>Order #${order.id} for Floor ${order.floor}, Room ${order.room}</div>
+                                <div>$${order.total.toFixed(2)}</div>
+                            </div>
+                            <div class="order-items">
+                                ${itemsHTML}
+                            </div>
+                            <div class="order-footer">
+                                <div>
+                                    <div>Phone: ${order.phone}</div>
+                                    <div>Placed at: ${order.time} on ${order.date}</div>
+                                </div>
+                                <div class="order-actions">
+                                    <span class="order-status status-${order.status}">
+                                        ${order.status === 'waiting' ? 'Waiting' : 'Delivered'}
+                                    </span>
+                                    ${order.status === 'waiting' ? 
+                                        `<button class="action-btn mark-delivered" data-id="${order.id}">Mark Delivered</button>` : 
+                                        `<button class="action-btn mark-waiting" data-id="${order.id}">Mark Waiting</button>`
+                                    }
+                                    <button class="action-btn delete-order" data-id="${order.id}">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                ordersList.innerHTML = ordersHTML;
+                
+                // Add event listeners to action buttons
+                document.querySelectorAll('.mark-delivered').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const orderId = parseInt(this.getAttribute('data-id'));
+                        const order = orders.find(o => o.id === orderId);
+                        if (order) {
+                            order.status = 'delivered';
+                            updateOrdersDisplay(filter);
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('.mark-waiting').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const orderId = parseInt(this.getAttribute('data-id'));
+                        const order = orders.find(o => o.id === orderId);
+                        if (order) {
+                            order.status = 'waiting';
+                            updateOrdersDisplay(filter);
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('.delete-order').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const orderId = parseInt(this.getAttribute('data-id'));
+                        const index = orders.findIndex(o => o.id === orderId);
+                        if (index !== -1) {
+                            orders.splice(index, 1);
+                            updateOrdersDisplay(filter);
+                        }
+                    });
+                });
+            }
+            
+            // Initialize with some sample orders for demonstration
+            function initializeSampleOrders() {
+                const sampleOrders = [
+                    {
+                        id: 1001,
+                        items: [{name: "Cappuccino", price: 3.50, quantity: 2}],
+                        total: 7.00,
+                        floor: 5,
+                        room: 502,
+                        phone: "555-123-4567",
+                        time: "9:15:32 AM",
+                        date: new Date().toLocaleDateString(),
+                        status: "waiting"
+                    },
+                    {
+                        id: 1002,
+                        items: [
+                            {name: "Latte", price: 4.00, quantity: 1},
+                            {name: "Croissant", price: 2.75, quantity: 1}
+                        ],
+                        total: 6.75,
+                        floor: 3,
+                        room: 310,
+                        phone: "555-987-6543",
+                        time: "8:45:12 AM",
+                        date: new Date().toLocaleDateString(),
+                        status: "delivered"
+                    }
+                ];
+                
+                sampleOrders.forEach(order => orders.push(order));
+                
+                // Update orders display if we're on the orders tab
+                if (document.getElementById('orders-content').classList.contains('active')) {
+                    updateOrdersDisplay();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
